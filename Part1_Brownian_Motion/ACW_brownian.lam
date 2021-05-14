@@ -1,0 +1,138 @@
+#starting with the Brownian.lam file we had in class
+#number of particles
+variable npart  equal 800
+
+units		lj
+dimension 2
+atom_style	atomic
+boundary        p p p
+#particle interact with other particles within a max distance of 6
+neighbor        6   bin
+neigh_modify    every 1 delay 0 check yes
+
+# define 2D box region
+region box block -20 20 -20 20 -0.1 0.1
+
+#create the simulation box with two types of particles
+create_box 2 box
+
+#put z=0 all the time
+fix 2d  all enforce2d
+
+#put particles with type 1 randomly into the box
+#the strange number is a seed for the random generator
+create_atoms 1 random ${npart} 324523 box
+
+#create one particle of type 2 which is our brownian particle
+#changing number of particles from 1 to 5
+#changed number of particles from 5 to 10 - currently 10 particles
+create_atoms 2 random 10 32524523 box
+
+#all light particles has mass 1, the brownian particle mass 50
+# the mass of the second larger particles was changed to 500
+mass   1	1
+mass   2	500
+
+
+#original interactions was soft repulsive interactions between all types of particles
+#pair_style soft      1.0
+#pair_coeff 1 1 10.0  1.0
+#pair_coeff 1 2 10.0  5.0
+#pair_coeff 2 2 10.0  5.0
+
+
+#define different types of interactions - can easily uncomment the set of interactions want to use
+
+#define lennar-jones interactions between small particles (1) with 1
+#define soft repulsive interactions between large particles (2) with 2
+#define soft repulsive interactions between 1 and 2
+#define the interaction sytle and cutoff (yukawa has screening length argument in-between), between atom _ and atom _
+# then the next number is the energy level and the last number is the global cutoff
+
+#pair_style hybrid lj/cut 7.0 soft 7.0
+#pair_coeff 1 1 lj/cut 1.0 1.0 2.0
+#pair_coeff 1 2 soft 10.0 5.0
+#pair_coeff 2 2 soft 20.0 2.0
+
+
+#define lennard-jones interactions between small particles (1) with 1
+#define soft repulsive interactions between 1 and 2
+#define lennard-jones interactions between large particles (2) with 2
+#change the parameters for energy level, cutoff, and screening length (look at lammps manual for
+# more info on these interaction types
+
+#pair_style hybrid lj/cut 7.0 soft 7.0 
+#pair_coeff 1 1 lj/cut 1.0 1.0 2.0
+#pair_coeff 1 2 soft 10.0 5.0
+#pair_coeff 2 2 lj/cut 20.0 2.0
+
+
+#define lennard-jones interactions between small particles (1) with 1
+#define soft repulsive interactions between 1 and 2
+#define zero interactions between large particles (2) with 2
+
+#pair_style hybrid lj/cut 2.0 soft 7.0 zero 5.0
+#pair_coeff 1 1 lj/cut 1.0 1.0
+#pair_coeff 1 2 soft 10.0 5.0
+#pair_coeff 2 2 zero
+
+
+#define lennar-jones interactions between small particles (1) with 1
+#define yukawa interactions between large particles (2) with 2
+#define soft repulsive interactions between 1 and 2
+#change the parameters for energy level, cutoff, and screening length (look at lammps manual for
+# more info on these interaction types
+
+#define the interaction sytle and cutoff (yukawa has screening length argument in-between), between atom _ and atom _
+# then the next number is the energy level and the last number is the global cutoff
+
+
+#pair_style hybrid lj/cut 2.0 soft 7.0 yukawa 3.5 5.0
+#pair_coeff 1 1 lj/cut 1.0 1.0
+#pair_coeff 1 2 soft 10.0 5.0
+#pair_coeff 2 2 yukawa 10.0 5.0
+
+
+pair_style hybrid lj/cut 2.0 soft 7.0 yukawa 0.3 15.0
+pair_coeff 1 1 lj/cut 1.0 1.0
+pair_coeff 1 2 soft 10.0 5.0
+pair_coeff 2 2 yukawa 100.0 15.0
+
+
+#velocity distribution corresponding to a temperature of 2.0
+#changed the velocity to 1.50 to slow down the system (1.0 was too slow)
+velocity all create 1.50  34234123 dist gaussian
+
+#minimize energy first to avoid overlapping particles
+minimize 1e-4 1e-4 1000 1000
+reset_timestep 0
+
+#save images
+shell "mkdir img"
+shell "rm img/*"
+dump        img all  image  10000 img/t*.jpg    type type zoom 1.7
+dump_modify img backcolor white  boxcolor black
+dump_modify img adiam 2 5.0
+dump_modify img adiam 1 1.0
+dump_modify img pad 6
+
+#save video
+#dump        video all  movie  1000 movie.avi    type type zoom 1.7
+#dump_modify video adiam 1 1.0
+#dump_modify video adiam 2 5.0
+#dump_modify video backcolor white  boxcolor black
+
+#integrate Newtons equation of motion with stochastic kicks and friction
+#the kicks and friction model the effect of temperature
+
+fix integrator all nve
+
+#output time step, temperature, average kinetic and potential energy
+thermo_style custom step temp  ke pe
+thermo		100
+
+#time step of integrator
+timestep	0.001
+
+#number of steps to run
+run		500000
