@@ -1,0 +1,66 @@
+#temperature in reduced units
+variable temp equal 3.0
+
+#number of obstacles to add
+variable npart equal 0
+
+#set up basic simulation stuff
+dimension 2
+units		lj
+atom_style	molecular
+boundary        p p p
+
+#neighbor settings
+neighbor 2.0 bin
+neigh_modify every 1 delay 0 check yes
+
+#read input configuraiton  (change to poly5.input to simulate 5 polymers)
+read_data poly5.input
+
+#add additional particles to box
+region box block -20 20 -20 20 -0.001 0.001
+create_atoms 2 random ${npart} 358723 box
+
+#all particles has mass 1
+mass   *        1
+
+#Type 1 is polymer. type 2 is fixed
+group mobile type 1
+
+#Weeks-Chandler-Anderson
+pair_style         lj/cut 1.12246204830937
+pair_coeff         * * 1.0 1.0 1.12246204830937
+pair_modify        shift yes
+
+#FENE type bond
+bond_style fene
+bond_coeff 1 30.0 1.5 1.0 1.0
+special_bonds fene
+
+#remove overlap between polymer and obstacles
+minimize 1e-5 1e-5 100 100
+reset_timestep 0
+
+#make pictures
+shell "mkdir img"
+shell "rm img/*"
+dump        img all  image  1000 img/t*.jpg    type type adiam 0.7 bond type 0.8 zoom 1.6 view 0 0
+dump_modify img backcolor white  boxcolor black
+dump_modify img pad 6
+
+#save video
+#dump        video all  movie  100 movie.avi    type type adiam 0.7 bond type 0.8 zoom 1.6 view 0 0
+#dump_modify video backcolor white  boxcolor black
+
+fix integrator mobile nve
+fix dynamics   mobile langevin ${temp} ${temp} 0.5 252352
+fix run2d      all enforce2d
+
+#unremark this to simulate elecrophoretic motion along the diagonal
+#fix electrophoresis mobile  addforce 1 1 0
+
+# specify timestep
+timestep	0.01
+thermo    100
+
+run 100000
