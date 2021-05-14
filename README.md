@@ -1,5 +1,48 @@
 # Protein-Simulation-in-LAMMPS
 
+The objective of this project is to simulate a coarse-grained protein in multiple types of
+solvents. We will do this by using LAMMPS to establish the interactions between
+different types of particles and incrementally increasing the complexity of the particle
+simulating the protein. Our first goal is to add multiple large particles where they begin in a
+mixed state and subsequently phase separate out of solution. The interactions between large
+particles will be zero or yukawa interactions while small particle interactions will follow the
+Lennard-Jones potential. We will have soft repulsive interactions between the large and small
+particles. Our second goal is to incorporate a polymer immersed with at least two different types
+of solvent particles. Time permitted, we will replace the large particle with a coarse-grain
+simulation of a protein using the Martini model.
+
+We can divide our work into three parts mentioned below:
+
+Part 1 is to model the proteins as a set of simple large particles (A) surrounded by the
+solvent (B).
+
+Part 2 is to model the proteins as a cluster or polymer (A) surrounded by the solvent (B).
+
+Part 3 is to use a Martini model (a coarse-grained force field) to model the protein (A) in the solvent (B).
+
+Some steps/procedures of coding are as follows:
+•	Define the large particles (A):   mass/density/size
+•	Define the small particles (B): mass/density/size
+•	Define the interactions of the large particles with each other (AA): zero/yukawa
+•	Define the interactions of the small particles with each other (BB): Lj fluid interactions
+•	Define the interactions between large particles with small particles (AB): Repulsive hare/soft
+•	Set size of simulation grid
+•	Set percentage of area filled with particles/density of particles
+•	Number of particles
+•	Set temperature/energy level of system
+•	Set time step information: How long time step and Number of time steps       
+•	Set image information
+•	Save an image every 10000 frames
+•	Run the simulation
+
+We will have soft repulsive interactions between the large and small
+particles. Our second goal is to incorporate a polymer immersed with at least two different types
+of solvent particles. 
+
+Time permitted, we will replace the large particle with a coarse-grain
+simulation of a protein using the Martini model
+
+
 Polymer Simulations
 
 all code was derived from the following website: 
@@ -74,6 +117,8 @@ lmp -in brownian.lam
 again, make sure the read_data command is poly1-circle.input or poly1-star.input depending on which simulation and hence, directory you’re in
 
 these parameters should already be set in the downloaded files 
+
+%Challenges to simulate the coarse-grained protein using the Martini model
 
 
 
