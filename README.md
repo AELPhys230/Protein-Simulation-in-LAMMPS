@@ -317,14 +317,14 @@ these parameters should already be set in the downloaded files
 
 **Part 3: Using a Martini model for the protein**
 
-%Challenges to simulate the coarse-grained protein using the Martini model
+%Challenges to simulate the coarse-grained protein using the Martini model:
 Initially we planned to do the followings
 
 Choose small protein of interest
 Compile protein structure from PDB into a coarse-grained model
 Import protein into our system in Part I as large particle
 
-But there are some challenges to implement the simulation of the coarse-grained protein using the Martini model
+But there are some challenges to implement the simulation of the coarse-grained protein using the Martini model.
 
 
 
